@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORONA API</title>
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            color: #FFD700;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 700px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-bar input {
+            padding: 0.8rem;
+            width: 65%;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-bar button {
+            padding: 0.8rem 1.5rem;
+            background: #ff5722;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background: #e64a19;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .card h3 {
+            font-size: 2rem;
+            color: #FFD700;
+            margin-bottom: 1rem;
+        }
+
+        .card p {
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+        }
+
+        .card p span {
+            font-weight: bold;
+            color: #00ff84;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 1rem;
+            font-size: 0.9rem;
+            color: #bbb;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 3rem;
+            color: #FF5722;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>COVID-19 Tracker</h1>
+    </header>
+
+    <div class="container">
+        <div class="search-bar">
+            <input type="text" id="country-input" placeholder="Enter a country">
+            <button id="search-button">Search</button>
+        </div>
+        <div class="cards-container" id="cards-container"></div>
+    </div>
+
+    <footer class="footer">
+        &copy; 2024 COVID-19 Tracker. All Rights Reserved.
+    </footer>
+
+    <script>
+        const api = 'https://disease.sh/v3/covid-19/countries';
+        const searchButton = document.getElementById('search-button');
+        const countryInput = document.getElementById('country-input');
+        const cardsContainer = document.getElementById('cards-container');
+
+        const fetchCountryData = async (country) => {
+            try {
+                const response = await fetch(`${api}/${country}`);
+                if (!response.ok) throw new Error('Country not found');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                alert(error.message);
+                return null;
+            }
+        };
+
+        const createCard = (countryData) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.innerHTML = `
+                <div class="icon">🌍</div>
+                <h3>${countryData.country}</h3>
+                <p>Total Cases: <span>${countryData.cases.toLocaleString()}</span></p>
+                <p>Recovered: <span>${countryData.recovered.toLocaleString()}</span></p>
+                <p>Deaths: <span>${countryData.deaths.toLocaleString()}</span></p>
+            `;
+            return card;
+        };
+
+        const buttonHandler = async () => {
+            const country = countryInput.value.trim();
+            if (!country) {
+                alert('Please enter a country name.');
+                return;
+            }
+
+            const data = await fetchCountryData(country);
+            if (data) {
+                cardsContainer.innerHTML = '';
+                const card = createCard(data);
+                cardsContainer.appendChild(card);
+            }
+        };
+
+        searchButton.addEventListener('click', buttonHandler);
+    </script>
+</body>
+
+</html>
